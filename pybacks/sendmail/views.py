@@ -15,7 +15,7 @@ def sendmail(request):
         my_email = data['my_email']
         my_password = data['my_password']
         user_email = data['user_email']
-
+        message = data['msg']
         
         email_sender = my_email
         email_pwd = my_password
@@ -34,9 +34,24 @@ def sendmail(request):
         with smtplib.SMTP_SSL('smtp.gmail.com', 465, context = context) as smtp:
             smtp.login(email_sender, email_pwd)
             smtp.sendmail(email_sender, email_receiver, em.as_string())
+        
+        
+        subject = f"Message from : {user_email}"
+        body = message
+        em = EmailMessage()
+        em['From'] = email_sender
+        em['To'] = email_sender
+        em['Subject'] = subject
+        em.set_content(body)
+
+        context = ssl.create_default_context()
+
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context = context) as smtp:
+            smtp.login(email_sender, email_pwd)
+            smtp.sendmail(email_sender, email_sender, em.as_string())
 
 
-        print(user_email,my_email,my_password)
+        
         return JsonResponse({'message': 'Thank you email sent successfully'}, status=200)
     except Exception as e:
             print("Error:", e)
